@@ -7,14 +7,14 @@ public class PersonBehavior : MonoBehaviour
 {
     [SerializeField] Sprite hunterSprite;
     [SerializeField] Sprite praySprite;
+    [SerializeField] GameObject prayDying;
     [SerializeField] int role = 0; //0 = pray, 1 = hunter
     [SerializeField] int behavior = 1; //0 = nothing, 1 = do the role
 
     [SerializeField] float moveSpeed = 10f;
     [SerializeField] float maxMoveSpeed = 10f;
     [SerializeField] float huntingRange = 3f;
-    [SerializeField] float eatingRange = 0.1f;
-    [SerializeField] PersonBehavior currentPray;
+    
     GameManager gameManager;
     SoundManager soundManager;
     bool playerControlled = false;
@@ -25,6 +25,10 @@ public class PersonBehavior : MonoBehaviour
     public float MaxMoveSpeed { get => maxMoveSpeed; }
     public float HuntingRange { get => huntingRange; }
     public GameManager GameManager { get => gameManager; }
+    public SoundManager SoundManager { get => soundManager; }
+    public bool PlayerControlled { get => playerControlled; }
+    public GameObject PrayDying { get => prayDying; }
+
 
     // Start is called before the first frame update
     void Start()
@@ -32,6 +36,7 @@ public class PersonBehavior : MonoBehaviour
         gameManager = FindObjectOfType<GameManager>();
         soundManager = FindObjectOfType<SoundManager>();
     }
+
 
     public void SetAsHunter(float delay)
     {
@@ -43,6 +48,7 @@ public class PersonBehavior : MonoBehaviour
         }
     }
 
+
     public void SetAsPray(float delay)
     {
         GetComponent<SpriteRenderer>().sprite = praySprite;
@@ -53,12 +59,14 @@ public class PersonBehavior : MonoBehaviour
         }
     }
 
+
     public void SetAsPlayerControlled()
     {
         playerControlled = true;
         this.transform.GetChild(0).gameObject.SetActive(true);
-        GetComponent<Player>().enabled = true;
+        //GetComponent<Player>().enabled = true;
     }
+
 
     public IEnumerator Confuse(float seconds)
     {
@@ -72,6 +80,7 @@ public class PersonBehavior : MonoBehaviour
         this.transform.GetChild(1).gameObject.SetActive(false);
     }
 
+
     // Update is called once per frame
     void Update()
     {
@@ -81,19 +90,10 @@ public class PersonBehavior : MonoBehaviour
         }
         else
         {
-            PlayerRole();
+            GetComponent<Player>().PlayerRole();
         }
     }
-
-    private void PlayerRole()
-    {
-        if (role == 1)
-        {
-            currentPray = PickPray();
-            if (currentPray == null) { return; }
-            TryToEat();
-        }
-    }
+    
 
     private void ActAsRole()
     {
@@ -105,98 +105,9 @@ public class PersonBehavior : MonoBehaviour
         }
         else
         {
-            Hunt();
+            GetComponent<Hunter>().Hunt();
         }
     }
 
-
-
-    //Hunter specific
-    private void Hunt()
-    {
-        currentPray = PickPray();
-        if (currentPray == null) { return; }
-        ChaseTarget();
-        TryToEat();
-    }
-
-    private void ChaseTarget()
-    {
-        Vector2 currentPos = new Vector2(transform.position.x, transform.position.y);
-        Vector2 prayPos = currentPray.transform.position;
-        Vector2 newPos = Vector2.MoveTowards(currentPos, prayPos, moveSpeed * Time.deltaTime);
-        transform.position = newPos;
-    }
-
-    private PersonBehavior PickPray()
-    {
-        var personList = FindObjectsOfType<PersonBehavior>();
-        float closestDistance = Mathf.Infinity;
-        PersonBehavior pray = null;
-        foreach (var person in personList)
-        {
-            if (person.role == 1) continue;
-
-            float distance = Vector2.Distance(transform.position, person.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                pray = person;
-            }
-        }
-
-        return pray;
-    }
-
-    private void TryToEat()
-    {
-        if (Vector2.Distance(transform.position, currentPray.transform.position) < eatingRange)
-        {
-            Eat();
-        }
-    }
-
-    private void Eat()
-    {
-        int numPray = gameManager.CountPray();
-        if (numPray == gameManager.RoundInitialPray)
-        {
-            Kill();
-            if (!playerControlled)
-            {
-                StartCoroutine(Confuse(0.5f));
-            }
-        }
-        else if (numPray > 1)
-        {
-            Convert();
-            if (!playerControlled)
-            {
-                StartCoroutine(Confuse(0.5f));
-            }
-        }
-        else
-        {
-            Kill();
-            gameManager.SetGameState();
-            gameManager.NextRound();
-        }
-
-        gameManager.SetGameState();
-    }
-
-    private void Convert()
-    {
-        AudioSource.PlayClipAtPoint(soundManager.convertSFX, Camera.main.transform.position);
-        currentPray.SetAsHunter(2f);
-    }
-
-    private void Kill()
-    {
-        AudioSource.PlayClipAtPoint(soundManager.killSFX, Camera.main.transform.position);
-        currentPray.gameObject.SetActive(false);
-        Destroy(currentPray.gameObject);
-    }
-
-
+    
 }

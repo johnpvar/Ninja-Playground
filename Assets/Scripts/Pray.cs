@@ -11,6 +11,7 @@ public class Pray : MonoBehaviour
         myPerson = GetComponent<PersonBehavior>();
     }
 
+
     public void PrayRole()
     {
         int numPray = myPerson.GameManager.CountPray();
@@ -27,6 +28,7 @@ public class Pray : MonoBehaviour
             AvoidHunter();
         }
     }
+
 
     public PersonBehavior FindClosestHunter()
     {
@@ -48,7 +50,8 @@ public class Pray : MonoBehaviour
         return hunter;
     }
 
-    void AvoidHunter()
+
+    private void AvoidHunter()
     {
         PersonBehavior hunter = FindClosestHunter();
 
@@ -61,7 +64,8 @@ public class Pray : MonoBehaviour
         transform.position = newPos;
     }
 
-    void SeekHunter()
+
+    private void SeekHunter()
     {
         PersonBehavior hunter = FindClosestHunter();
 

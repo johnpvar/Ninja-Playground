@@ -24,20 +24,26 @@ public class GameManager : MonoBehaviour
 
     PersonBehavior player;
     bool isGameOver = false;
-
     
     public int Round { get => round; set => round = value; }
     public int RoundInitialPray { get => roundInitialPray; }
 
+    [SerializeField] string[] tips;
 
     // Start is called before the first frame update
     void Start()
     {
+        if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Tutorial"))
+        {
+            soundManager.SetClipByName("tutorialMusic");
+            return;
+        }
         SpawnHunter();
         SpawnPray();
         roundInitialPray = CountPray();
         SetPlayer();
     }
+
 
     private void SetPlayer()
     {
@@ -48,6 +54,7 @@ public class GameManager : MonoBehaviour
         SetGameState();
     }
 
+
     public void SetGameState()
     {
         if (player == null || player.gameObject == null || !player.gameObject.activeInHierarchy)
@@ -55,6 +62,7 @@ public class GameManager : MonoBehaviour
             if (!isGameOver)
             {
                 instructionsText.text = "Game lost";
+                DisplayTip();
                 soundManager.SetClipByName("loseMusic");
                 instructionsText.gameObject.SetActive(false);
                 lossScreen.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text =
@@ -100,6 +108,7 @@ public class GameManager : MonoBehaviour
         
     }
 
+
     private void SpawnHunter()
     {
         Vector2 pos = new Vector2(0, 0);
@@ -107,6 +116,7 @@ public class GameManager : MonoBehaviour
         currentPerson.GetComponent<PersonBehavior>().SetAsHunter(2f);
         currentPerson.gameObject.name = "Person 0";
     }
+
 
     private void SpawnPray()
     {
@@ -122,11 +132,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     // Update is called once per frame
     void Update()
     {
         DetectPlayAgain();
     }
+
 
     private void DetectPlayAgain()
     {
@@ -136,6 +148,7 @@ public class GameManager : MonoBehaviour
         }
         
     }
+
 
     public int CountPray()
     {
@@ -150,6 +163,7 @@ public class GameManager : MonoBehaviour
         }
         return count;
     }
+
 
     public void NextRound()
     {
@@ -189,6 +203,7 @@ public class GameManager : MonoBehaviour
         roundInitialPray = CountPray();
     }
 
+
     private void AddRandomForce(PersonBehavior person)
     {
         float forceX = UnityEngine.Random.Range(-forceRangeX, forceRangeX);
@@ -196,5 +211,12 @@ public class GameManager : MonoBehaviour
         Vector2 force = new Vector2(forceX, forceY);
         Vector2 forceNew = Vector2.MoveTowards(person.transform.position, person.GetComponent<Pray>().FindClosestHunter().transform.position, -forceCounterHunter);
         person.gameObject.GetComponent<Rigidbody2D>().AddForce(forceNew, ForceMode2D.Impulse);
+    }
+
+    private void DisplayTip()
+    {
+        int tipIndex = UnityEngine.Random.Range(0, tips.Length);
+        lossScreen.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text =
+                    string.Format("Tip: {0} ", tips[tipIndex]);
     }
 }

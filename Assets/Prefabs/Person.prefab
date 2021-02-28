@@ -194,6 +194,7 @@ GameObject:
   - component: {fileID: 3522104653132206603}
   - component: {fileID: 8428626836789174276}
   - component: {fileID: -5856614372129807174}
+  - component: {fileID: 3893543464192313963}
   - component: {fileID: 8428626836789174277}
   - component: {fileID: 6834452863168839360}
   - component: {fileID: -2959408447409640738}
@@ -227,7 +228,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8428626836789174331}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 96485fc3b49f3a64e9720a83c5a53da1, type: 3}
   m_Name: 
@@ -246,13 +247,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hunterSprite: {fileID: 21300000, guid: c24650493bf68eb4087a156053dd2430, type: 3}
   praySprite: {fileID: 21300000, guid: e5e31ac88c5ae3c4da7ab031b41722ee, type: 3}
+  prayDying: {fileID: 3517932695465114699, guid: 088635352af8e4342b353a98ffed830b,
+    type: 3}
   role: 0
   behavior: 1
   moveSpeed: 4
   maxMoveSpeed: 4
   huntingRange: 4
-  eatingRange: 1.15
-  currentPray: {fileID: 0}
 --- !u!114 &-5856614372129807174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,6 +266,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ada22178fe924344b2a51cff77ce376, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3893543464192313963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8428626836789174331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eac4d5c336f24244aad397837cad7b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentPray: {fileID: 0}
+  eatingRange: 1.15
 --- !u!212 &8428626836789174277
 SpriteRenderer:
   m_ObjectHideFlags: 0

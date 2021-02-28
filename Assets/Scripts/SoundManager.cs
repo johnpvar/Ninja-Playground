@@ -10,6 +10,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioClip joinDarkMusic;
     [SerializeField] AudioClip loseMusic;
     [SerializeField] AudioClip winMusic;
+    [SerializeField] AudioClip tutorialMusic;
 
     [Header("SoundFX")]
     [SerializeField] public AudioClip killSFX;
@@ -49,6 +50,10 @@ public class SoundManager : MonoBehaviour
         else if (clipName == "winMusic")
         {
             SetClip(winMusic);
+        }
+        else if (clipName == "tutorialMusic")
+        {
+            SetClip(tutorialMusic);
         }
         else
         {
