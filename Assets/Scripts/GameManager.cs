@@ -194,7 +194,7 @@ public class GameManager : MonoBehaviour
         float forceX = UnityEngine.Random.Range(-forceRangeX, forceRangeX);
         float forceY = UnityEngine.Random.Range(-forceRangeY, forceRangeY);
         Vector2 force = new Vector2(forceX, forceY);
-        Vector2 forceNew = Vector2.MoveTowards(person.transform.position, person.FindClosestHunter().transform.position, -forceCounterHunter);
+        Vector2 forceNew = Vector2.MoveTowards(person.transform.position, person.GetComponent<Pray>().FindClosestHunter().transform.position, -forceCounterHunter);
         person.gameObject.GetComponent<Rigidbody2D>().AddForce(forceNew, ForceMode2D.Impulse);
     }
 }

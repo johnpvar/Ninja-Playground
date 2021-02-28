@@ -23,6 +23,8 @@ public class PersonBehavior : MonoBehaviour
     public int Behavior { get => behavior;}
     public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
     public float MaxMoveSpeed { get => maxMoveSpeed; }
+    public float HuntingRange { get => huntingRange; }
+    public GameManager GameManager { get => gameManager; }
 
     // Start is called before the first frame update
     void Start()
@@ -99,7 +101,7 @@ public class PersonBehavior : MonoBehaviour
 
         if (role == 0)
         {
-            PrayRole();
+            GetComponent<Pray>().PrayRole();
         }
         else
         {
@@ -107,22 +109,7 @@ public class PersonBehavior : MonoBehaviour
         }
     }
 
-    private void PrayRole()
-    {
-        int numPray = gameManager.CountPray();
-        if (numPray == gameManager.RoundInitialPray)
-        {
-            AvoidHunter();
-        }
-        else if (numPray > 1)
-        {
-            SeekHunter();
-        }
-        else
-        {
-            AvoidHunter();
-        }
-    }
+
 
     //Hunter specific
     private void Hunt()
@@ -212,50 +199,4 @@ public class PersonBehavior : MonoBehaviour
     }
 
 
-
-    //Pray specific
-
-    public PersonBehavior FindClosestHunter()
-    {
-        var hunterList = FindObjectsOfType<PersonBehavior>();
-        float closestDistance = Mathf.Infinity;
-        PersonBehavior hunter = null;
-        foreach (var potentialHunter in hunterList)
-        {
-            if (potentialHunter.role == 0) continue;
-
-            float distance = Vector2.Distance(transform.position, potentialHunter.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                hunter = potentialHunter;
-            }
-        }
-
-        return hunter;
-    }
-
-    void AvoidHunter()
-    {
-        PersonBehavior hunter = FindClosestHunter();
-
-        Vector2 currentPos = new Vector2(transform.position.x, transform.position.y);
-        Vector2 hunterPos = hunter.transform.position;
-
-        if (Vector2.Distance(currentPos, hunterPos) > huntingRange) { return; }
-
-        Vector2 newPos = Vector2.MoveTowards(currentPos, hunterPos, -moveSpeed * Time.deltaTime); //the minus does the away thing
-        transform.position = newPos;
-    }
-
-    void SeekHunter()
-    {
-        PersonBehavior hunter = FindClosestHunter();
-
-        Vector2 currentPos = new Vector2(transform.position.x, transform.position.y);
-        Vector2 hunterPos = hunter.transform.position;
-
-        Vector2 newPos = Vector2.MoveTowards(currentPos, hunterPos, moveSpeed * Time.deltaTime);
-        transform.position = newPos;
-    }
 }
