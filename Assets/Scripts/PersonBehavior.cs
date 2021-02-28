@@ -11,6 +11,7 @@ public class PersonBehavior : MonoBehaviour
     [SerializeField] int behavior = 1; //0 = nothing, 1 = do the role
 
     [SerializeField] float moveSpeed = 10f;
+    [SerializeField] float maxMoveSpeed = 10f;
     [SerializeField] float huntingRange = 3f;
     [SerializeField] float eatingRange = 0.1f;
     [SerializeField] PersonBehavior currentVictim;
@@ -20,6 +21,8 @@ public class PersonBehavior : MonoBehaviour
 
     public int Role { get => role;}
     public int Behavior { get => behavior;}
+    public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
+    public float MaxMoveSpeed { get => maxMoveSpeed; }
 
     // Start is called before the first frame update
     void Start()
@@ -28,18 +31,24 @@ public class PersonBehavior : MonoBehaviour
         soundManager = FindObjectOfType<SoundManager>();
     }
 
-    public void SetAsHunter()
+    public void SetAsHunter(float delay)
     {
         GetComponent<SpriteRenderer>().sprite = hunterSprite;
         role = 1;
-        StartCoroutine(Confuse(2f));
+        if (!playerControlled && delay != 0f)
+        {
+            StartCoroutine(Confuse(delay));
+        }
     }
 
-    public void SetAsVictim()
+    public void SetAsVictim(float delay)
     {
         GetComponent<SpriteRenderer>().sprite = victimSprite;
         role = 0;
-        StartCoroutine(Confuse(0.5f));
+        if (!playerControlled && delay != 0f)
+        {
+            StartCoroutine(Confuse(delay));
+        }
     }
 
     public void SetAsPlayerControlled()
@@ -52,8 +61,13 @@ public class PersonBehavior : MonoBehaviour
     public IEnumerator Confuse(float seconds)
     {
         behavior = 0;
+        if (role == 1)
+        {
+            this.transform.GetChild(1).gameObject.SetActive(true);
+        }
         yield return new WaitForSeconds(seconds);
         behavior = 1;
+        this.transform.GetChild(1).gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -161,10 +175,18 @@ public class PersonBehavior : MonoBehaviour
         if (numVictims == gameManager.RoundInitialVictims)
         {
             Kill();
+            if (!playerControlled)
+            {
+                StartCoroutine(Confuse(0.5f));
+            }
         }
         else if (numVictims > 1)
         {
             Convert();
+            if (!playerControlled)
+            {
+                StartCoroutine(Confuse(0.5f));
+            }
         }
         else
         {
@@ -179,7 +201,7 @@ public class PersonBehavior : MonoBehaviour
     private void Convert()
     {
         AudioSource.PlayClipAtPoint(soundManager.convertSFX, Camera.main.transform.position);
-        currentVictim.SetAsHunter();
+        currentVictim.SetAsHunter(2f);
     }
 
     private void Kill()
@@ -193,7 +215,7 @@ public class PersonBehavior : MonoBehaviour
 
     //Victim specific
 
-    private PersonBehavior FindClosestHunter()
+    public PersonBehavior FindClosestHunter()
     {
         var hunterList = FindObjectsOfType<PersonBehavior>();
         float closestDistance = Mathf.Infinity;

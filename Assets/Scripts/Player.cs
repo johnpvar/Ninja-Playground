@@ -5,12 +5,12 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] float moveSpeed = 4f;
-    
+    PersonBehavior myPerson;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        myPerson = GetComponent<PersonBehavior>();
     }
 
     // Update is called once per frame
@@ -21,8 +21,8 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
-        float deltaX = Input.GetAxis("Horizontal") * Time.deltaTime * moveSpeed;
-        float deltaY = Input.GetAxis("Vertical") * Time.deltaTime * moveSpeed;
+        float deltaX = Input.GetAxis("Horizontal") * Time.deltaTime * myPerson.MoveSpeed;
+        float deltaY = Input.GetAxis("Vertical") * Time.deltaTime * myPerson.MoveSpeed;
 
         transform.position += new Vector3(deltaX, deltaY, 0);
     }

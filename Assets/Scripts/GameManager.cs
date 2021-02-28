@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     [Header("Round info")]
     [SerializeField] int round = 1; //debug
     [SerializeField] int roundInitialVictims; //debug
+    [SerializeField] float forceRangeX = 10f;
+    [SerializeField] float forceRangeY = 10f;
+    [SerializeField] float forceCounterHunter = 50f;
 
     PersonBehavior player;
     bool isGameOver = false;
@@ -101,7 +104,7 @@ public class GameManager : MonoBehaviour
     {
         Vector2 pos = new Vector2(0, 0);
         var currentPerson = Instantiate(person, pos, Quaternion.identity);
-        currentPerson.GetComponent<PersonBehavior>().SetAsHunter();
+        currentPerson.GetComponent<PersonBehavior>().SetAsHunter(2f);
         currentPerson.gameObject.name = "Person 0";
     }
 
@@ -114,7 +117,7 @@ public class GameManager : MonoBehaviour
 
             Vector2 pos = new Vector2(posX, posY);
             var currentPerson = Instantiate(person, pos, Quaternion.identity);
-            currentPerson.GetComponent<PersonBehavior>().SetAsVictim();
+            currentPerson.GetComponent<PersonBehavior>().SetAsVictim(0.5f);
             currentPerson.gameObject.name = "Person " + (i +1).ToString();
         }
     }
@@ -157,17 +160,27 @@ public class GameManager : MonoBehaviour
             {
                 personList.Remove(person);
             }
-            person.SetAsVictim();
+            person.SetAsVictim(0f);
         }
+
         if (personList.Count <= 3 && !isGameOver)
         {
-            player.SetAsHunter();
+            player.SetAsHunter(0f);
         }
         else
         {
             int hunterIndex = UnityEngine.Random.Range(0, personList.Count);
-            personList[hunterIndex].SetAsHunter();
+            personList[hunterIndex].SetAsHunter(2.5f);
             Debug.LogFormat("Round {0} starting hunter is {1}", round, personList[hunterIndex].name);
+        }
+        
+        foreach (var person in personList)
+        {
+            if (person.Role == 0)
+            {
+                AddRandomForce(person);
+            }
+            
         }
 
         round++;
@@ -176,4 +189,12 @@ public class GameManager : MonoBehaviour
         roundInitialVictims = CountVictims();
     }
 
+    private void AddRandomForce(PersonBehavior person)
+    {
+        float forceX = UnityEngine.Random.Range(-forceRangeX, forceRangeX);
+        float forceY = UnityEngine.Random.Range(-forceRangeY, forceRangeY);
+        Vector2 force = new Vector2(forceX, forceY);
+        Vector2 forceNew = Vector2.MoveTowards(person.transform.position, person.FindClosestHunter().transform.position, -forceCounterHunter);
+        person.gameObject.GetComponent<Rigidbody2D>().AddForce(forceNew, ForceMode2D.Impulse);
+    }
 }
