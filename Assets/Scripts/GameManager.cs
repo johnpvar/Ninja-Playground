@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] int initialVictims = 10;
+    [SerializeField] int initialPray = 10;
     [SerializeField] GameObject person;
     [SerializeField] TextMeshProUGUI instructionsText;
     [SerializeField] TextMeshProUGUI roundText;
@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Round info")]
     [SerializeField] int round = 1; //debug
-    [SerializeField] int roundInitialVictims; //debug
+    [SerializeField] int roundInitialPray; //debug
     [SerializeField] float forceRangeX = 10f;
     [SerializeField] float forceRangeY = 10f;
     [SerializeField] float forceCounterHunter = 50f;
@@ -27,15 +27,15 @@ public class GameManager : MonoBehaviour
 
     
     public int Round { get => round; set => round = value; }
-    public int RoundInitialVictims { get => roundInitialVictims; }
+    public int RoundInitialPray { get => roundInitialPray; }
 
 
     // Start is called before the first frame update
     void Start()
     {
         SpawnHunter();
-        SpawnVictims();
-        roundInitialVictims = CountVictims();
+        SpawnPray();
+        roundInitialPray = CountPray();
         SetPlayer();
     }
 
@@ -81,12 +81,12 @@ public class GameManager : MonoBehaviour
         }
         else if (player.Role == 0)
         {
-            if (CountVictims() == roundInitialVictims)
+            if (CountPray() == roundInitialPray)
             {
                 instructionsText.text = "Run away!";
                 soundManager.SetClipByName("avoidMusic");
             }
-            else if (CountVictims() < roundInitialVictims && CountVictims() > 1)
+            else if (CountPray() < roundInitialPray && CountPray() > 1)
             {
                 instructionsText.text = "Join the dark side!";
                 soundManager.SetClipByName("joinDarkMusic");
@@ -108,16 +108,16 @@ public class GameManager : MonoBehaviour
         currentPerson.gameObject.name = "Person 0";
     }
 
-    private void SpawnVictims()
+    private void SpawnPray()
     {
-        for (int i = 0; i < initialVictims; i++)
+        for (int i = 0; i < initialPray; i++)
         {
             float posX = UnityEngine.Random.Range(-6f, 6f);
             float posY = UnityEngine.Random.Range(-5f, 5f);
 
             Vector2 pos = new Vector2(posX, posY);
             var currentPerson = Instantiate(person, pos, Quaternion.identity);
-            currentPerson.GetComponent<PersonBehavior>().SetAsVictim(0.5f);
+            currentPerson.GetComponent<PersonBehavior>().SetAsPray(0.5f);
             currentPerson.gameObject.name = "Person " + (i +1).ToString();
         }
     }
@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public int CountVictims()
+    public int CountPray()
     {
         int count = 0;
         var personList = FindObjectsOfType<PersonBehavior>();
@@ -160,7 +160,7 @@ public class GameManager : MonoBehaviour
             {
                 personList.Remove(person);
             }
-            person.SetAsVictim(0f);
+            person.SetAsPray(0f);
         }
 
         if (personList.Count <= 3 && !isGameOver)
@@ -186,7 +186,7 @@ public class GameManager : MonoBehaviour
         round++;
         roundText.text = string.Format("Round {0}", round.ToString());
         Debug.LogFormat("Round {0} is starting with {1} survivors", round, personList.Count);
-        roundInitialVictims = CountVictims();
+        roundInitialPray = CountPray();
     }
 
     private void AddRandomForce(PersonBehavior person)

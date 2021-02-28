@@ -6,15 +6,15 @@ using UnityEngine;
 public class PersonBehavior : MonoBehaviour
 {
     [SerializeField] Sprite hunterSprite;
-    [SerializeField] Sprite victimSprite;
-    [SerializeField] int role = 0; //0 = victim, 1 = hunter
+    [SerializeField] Sprite praySprite;
+    [SerializeField] int role = 0; //0 = pray, 1 = hunter
     [SerializeField] int behavior = 1; //0 = nothing, 1 = do the role
 
     [SerializeField] float moveSpeed = 10f;
     [SerializeField] float maxMoveSpeed = 10f;
     [SerializeField] float huntingRange = 3f;
     [SerializeField] float eatingRange = 0.1f;
-    [SerializeField] PersonBehavior currentVictim;
+    [SerializeField] PersonBehavior currentPray;
     GameManager gameManager;
     SoundManager soundManager;
     bool playerControlled = false;
@@ -41,9 +41,9 @@ public class PersonBehavior : MonoBehaviour
         }
     }
 
-    public void SetAsVictim(float delay)
+    public void SetAsPray(float delay)
     {
-        GetComponent<SpriteRenderer>().sprite = victimSprite;
+        GetComponent<SpriteRenderer>().sprite = praySprite;
         role = 0;
         if (!playerControlled && delay != 0f)
         {
@@ -87,8 +87,8 @@ public class PersonBehavior : MonoBehaviour
     {
         if (role == 1)
         {
-            currentVictim = PickTarget();
-            if (currentVictim == null) { return; }
+            currentPray = PickPray();
+            if (currentPray == null) { return; }
             TryToEat();
         }
     }
@@ -99,7 +99,7 @@ public class PersonBehavior : MonoBehaviour
 
         if (role == 0)
         {
-            VictimRole();
+            PrayRole();
         }
         else
         {
@@ -107,14 +107,14 @@ public class PersonBehavior : MonoBehaviour
         }
     }
 
-    private void VictimRole()
+    private void PrayRole()
     {
-        int numVictims = gameManager.CountVictims();
-        if (numVictims == gameManager.RoundInitialVictims)
+        int numPray = gameManager.CountPray();
+        if (numPray == gameManager.RoundInitialPray)
         {
             AvoidHunter();
         }
-        else if (numVictims > 1)
+        else if (numPray > 1)
         {
             SeekHunter();
         }
@@ -127,8 +127,8 @@ public class PersonBehavior : MonoBehaviour
     //Hunter specific
     private void Hunt()
     {
-        currentVictim = PickTarget();
-        if (currentVictim == null) { return; }
+        currentPray = PickPray();
+        if (currentPray == null) { return; }
         ChaseTarget();
         TryToEat();
     }
@@ -136,34 +136,34 @@ public class PersonBehavior : MonoBehaviour
     private void ChaseTarget()
     {
         Vector2 currentPos = new Vector2(transform.position.x, transform.position.y);
-        Vector2 victimPos = currentVictim.transform.position;
-        Vector2 newPos = Vector2.MoveTowards(currentPos, victimPos, moveSpeed * Time.deltaTime);
+        Vector2 prayPos = currentPray.transform.position;
+        Vector2 newPos = Vector2.MoveTowards(currentPos, prayPos, moveSpeed * Time.deltaTime);
         transform.position = newPos;
     }
 
-    private PersonBehavior PickTarget()
+    private PersonBehavior PickPray()
     {
-        var victimList = FindObjectsOfType<PersonBehavior>();
+        var personList = FindObjectsOfType<PersonBehavior>();
         float closestDistance = Mathf.Infinity;
-        PersonBehavior victim = null;
-        foreach (var potentialVictim in victimList)
+        PersonBehavior pray = null;
+        foreach (var person in personList)
         {
-            if (potentialVictim.role == 1) continue;
+            if (person.role == 1) continue;
 
-            float distance = Vector2.Distance(transform.position, potentialVictim.transform.position);
+            float distance = Vector2.Distance(transform.position, person.transform.position);
             if (distance < closestDistance)
             {
                 closestDistance = distance;
-                victim = potentialVictim;
+                pray = person;
             }
         }
 
-        return victim;
+        return pray;
     }
 
     private void TryToEat()
     {
-        if (Vector2.Distance(transform.position, currentVictim.transform.position) < eatingRange)
+        if (Vector2.Distance(transform.position, currentPray.transform.position) < eatingRange)
         {
             Eat();
         }
@@ -171,8 +171,8 @@ public class PersonBehavior : MonoBehaviour
 
     private void Eat()
     {
-        int numVictims = gameManager.CountVictims();
-        if (numVictims == gameManager.RoundInitialVictims)
+        int numPray = gameManager.CountPray();
+        if (numPray == gameManager.RoundInitialPray)
         {
             Kill();
             if (!playerControlled)
@@ -180,7 +180,7 @@ public class PersonBehavior : MonoBehaviour
                 StartCoroutine(Confuse(0.5f));
             }
         }
-        else if (numVictims > 1)
+        else if (numPray > 1)
         {
             Convert();
             if (!playerControlled)
@@ -201,19 +201,19 @@ public class PersonBehavior : MonoBehaviour
     private void Convert()
     {
         AudioSource.PlayClipAtPoint(soundManager.convertSFX, Camera.main.transform.position);
-        currentVictim.SetAsHunter(2f);
+        currentPray.SetAsHunter(2f);
     }
 
     private void Kill()
     {
         AudioSource.PlayClipAtPoint(soundManager.killSFX, Camera.main.transform.position);
-        currentVictim.gameObject.SetActive(false);
-        Destroy(currentVictim.gameObject);
+        currentPray.gameObject.SetActive(false);
+        Destroy(currentPray.gameObject);
     }
 
 
 
-    //Victim specific
+    //Pray specific
 
     public PersonBehavior FindClosestHunter()
     {
